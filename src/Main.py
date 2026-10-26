@@ -1,34 +1,11 @@
-import planetary_computer as pc
-from pystac_client import Client
+from Backend.ImageGenerator import ImageGenerator
 import rasterio
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 1. Connect to the satellite imagery catalog
-catalog = Client.open(
-    "https://planetarycomputer.microsoft.com/api/stac/v1",
-    modifier=pc.sign_inplace,
-)
-
-# 2. Search a small area around Vancouver
-search = catalog.search(
-    collections=["landsat-c2-l2"],
-    bbox=[-123.3, 49.1, -122.8, 49.4],
-    datetime="2026-01-01/2026-09-30",
-    query={"eo:cloud_cover": {"lt": 20}},
-    max_items=10,
-)
-
-items = list(search.items())
-
-if not items:
-    raise RuntimeError("No suitable images found. Try a wider date range.")
-
-# Choose the least cloudy image
-item = min(
-    items,
-    key=lambda x: x.properties.get("eo:cloud_cover", 100),
-)
+ImgGenerator = ImageGenerator("2016-01-01/2026-09-30")
+ImgGenerator.searchImg(-123.3, 49.1, -122.8, 49.4)
+item = ImgGenerator.getImg()
 
 print("Image:", item.id)
 print("Date:", item.datetime)
