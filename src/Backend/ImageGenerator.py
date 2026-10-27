@@ -24,7 +24,7 @@ class ImageGenerator:
             collections = ["landsat-c2-l2"],
             bbox = [min_longitude, min_latitude, max_longitude, max_latitude],
             datetime = self.datetime,
-            query = {"eo:cloud_cover": {"lt": 20}},     # filters images with les than 20% cld coverage
+            query = {"eo:cloud_cover": {"lt": 20}},     # filters images with les than 20% cloud coverage
             max_items = 10,
         )
         
@@ -35,10 +35,15 @@ class ImageGenerator:
         if not self.items:
             raise RuntimeError("No suitable images found. Try a wider date range.")
         
-        item = min(
+        self.item = min(
             self.items,
             key=lambda x: x.properties.get("eo:cloud_cover", 100),
         )
-        return item
+        return self.item
+
+
+    # EFFECTS: returns date
+    def getDate(self):
+        return self.item.datetime
 
 
