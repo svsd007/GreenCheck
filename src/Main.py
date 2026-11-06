@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import planetary_computer as pc
+from rasterio.warp import reproject, Resampling
+
 
 
 # get img
@@ -70,6 +72,22 @@ with rasterio.open(nir_url2) as src:
 print("done opening again")
 
 
+#\ {Reflectance} = {Pixel Value} * 0.0000275)-0.2
+
+red = red * 0.0000275 - 0.2
+nir = nir * 0.0000275 - 0.2
+
+# Mark fill pixels as missing
+red[red == -0.2] = np.nan
+nir[nir == -0.2] = np.nan
+
+red2 = red2 * 0.0000275 - 0.2
+nir2 = nir2 * 0.0000275 - 0.2
+
+# Mark fill pixels as missing
+red2[red2 == -0.2] = np.nan
+nir2[nir2 == -0.2] = np.nan
+
 # 3 Calculate NDVI
 # Mask invalid pixels and avoid division by zero
 denominator = nir + red
@@ -87,16 +105,42 @@ ndvi2 = np.full(red2.shape, np.nan, dtype=np.float32)
 valid2 = denominator2 != 0
 ndvi2[valid2] = (nir2[valid2] - red2[valid2]) / denominator2[valid2]
 
+#calculate del ndvi
 
+#reproject from rasterio need to learn details of it
+ndvi2_aligned = np.full(ndvi.shape, np.nan, dtype=np.float32)
 
-# 4. Display and save the NDVI image
+reproject(
+    source=ndvi2,
+    destination=ndvi2_aligned,
+
+    src_transform=profile2["transform"],
+    src_crs=profile2["crs"],
+    src_nodata=np.nan,
+
+    dst_transform=profile["transform"],
+    dst_crs=profile["crs"],
+    dst_nodata=np.nan,
+
+    resampling=Resampling.nearest
+)
+
+common_valid = np.isfinite(ndvi) & np.isfinite(ndvi2_aligned)
+delndvi = np.full(ndvi.shape, np.nan, dtype=np.float32)
+
+delndvi[common_valid] = (
+    ndvi2_aligned[common_valid] - ndvi[common_valid]
+)
+
+#4. Display and save the NDVI image
+
 plt.figure(figsize=(8, 6))
-plt.imshow(ndvi, cmap="RdYlGn", vmin=-1, vmax=1)
+plt.imshow(delndvi, cmap="RdYlGn", vmin=-2, vmax=2)
 plt.colorbar(label="NDVI")
-plt.title(f"Vancouver NDVI — {item.datetime.date()}")
+plt.title(f"Vancouver delta NDVI — from  {item.datetime.date()} to {item2.datetime.date()}")
 plt.axis("off")
 plt.tight_layout()
-plt.savefig("vancouver_ndvi.png", dpi=150)
+plt.savefig("vancouver_delta_ndvi.png", dpi=150)
 plt.show()
 
-print("Saved vancouver_ndvi.png")
+print("Saved vancouver_deltandvi.png")
