@@ -1,5 +1,6 @@
-import rasterio
 import numpy as np
+import rasterio
+from rasterio.warp import reproject, Resampling
 
 # creates an image of the specified place and compares the change in vegetation between these two images
 class Comparator:
@@ -16,16 +17,17 @@ class Comparator:
     def getBand(self, image, band):
         src = rasterio.open(image.assets[band].href)
         arr = src.read(1).astype(np.float32)
+        profile = src.profile
         src.close()
-        return arr
+        return arr, profile
 
     # EFFECTS: returns the change in 2d matrix of NDVI values for 2 given images
     def getNDVI(self):
-        image1Red = self.getBand(self.img1, "red")
-        image1NIR = self.getBand(self.img1, "nir08")
+        image1Red, profile1 = self.getBand(self.img1, "red")
+        image1NIR, _ = self.getBand(self.img1, "nir08")
 
-        image2Red = self.getBand(self.img2, "red")
-        image2NIR = self.getBand(self.img2, "nir08")
+        image2Red, profile2 = self.getBand(self.img2, "red")
+        image2NIR, _ = self.getBand(self.img2, "nir08")
 
         ndvi1 = np.full(image1Red.shape, np.nan, dtype=np.float32)
         ndvi2 = np.full(image2Red.shape, np.nan, dtype=np.float32)
@@ -38,4 +40,16 @@ class Comparator:
         validVector2 = denominator2 != 0
         ndvi2[validVector2] = (image2NIR[validVector2] - image2Red[validVector2]) / denominator2[validVector2]
 
-        return np.abs(ndvi1 - ndvi2)
+        ndvi2Aligned = np.empty(ndvi1.shape, dtype=np.float32)
+
+        reproject(
+            source=ndvi2,
+            destination=ndvi2Aligned,
+            src_transform=profile2["transform"],
+            src_crs=profile2["crs"],
+            dst_transform=profile1["transform"],
+            dst_crs=profile1["crs"],
+            resampling=Resampling.bilinear
+        )
+
+        return np.abs(ndvi1 - ndvi2Aligned)
