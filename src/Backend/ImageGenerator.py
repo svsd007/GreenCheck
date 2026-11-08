@@ -24,13 +24,13 @@ class ImageGenerator:
             collections = ["landsat-c2-l2"],
             bbox = [min_longitude, min_latitude, max_longitude, max_latitude],
             datetime = self.datetime,
-            query = {"eo:cloud_cover": {"lt": 20}},     # filters images with les than 20% cloud coverage
+            query = {"eo:cloud_cover": {"lt": 20}},     # filters images with less than 20% cloud coverage
             max_items = 10,
         )
         
         self.items = list(search.items())
 
-    # EFFECTS: filter and get imgs
+    # EFFECTS: filter and returns a STAC item
     def getImg(self):
         if not self.items:
             raise RuntimeError("No suitable images found. Try a wider date range.")
