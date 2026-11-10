@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 
 # get img
 
-ImgGenerator1 = ImageGenerator.ImageGenerator("1980-01-01/1985-01-01")
+ImgGenerator1 = ImageGenerator.ImageGenerator("1980", "summer")
 ImgGenerator1.searchImg(-123.3, 49.1, -122.8, 49.4)
 item = ImgGenerator1.getImg()
 
-ImgGenerator2 = ImageGenerator.ImageGenerator("2020-01-01/2026-01-01")
+ImgGenerator2 = ImageGenerator.ImageGenerator("2024", "summer")
 ImgGenerator2.searchImg(-123.3, 49.1, -122.8, 49.4)
 item2 = ImgGenerator2.getImg()
 

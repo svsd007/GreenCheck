@@ -2,9 +2,6 @@ import numpy as np
 import rasterio
 from rasterio.warp import reproject, Resampling
 
-
-from rasterio.transform import array_bounds
-
 # creates an image of the specified place and compares the change in vegetation between these two images
 class Comparator:
     img1 = None # older img
