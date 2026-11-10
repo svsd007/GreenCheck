@@ -1,8 +1,6 @@
 import Backend.ImageGenerator as ImageGenerator
 import Backend.Comparator as Comparator
 
-import rasterio
-import numpy as np
 import matplotlib.pyplot as plt
 
 # get img
