@@ -2,9 +2,13 @@ import Backend.ImageGenerator as ImageGenerator
 import Backend.Comparator as Comparator
 import Backend.ImageSearcher as ImageSearcher
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 
-imgsearcger = ImageSearcher.ImageSearcher("1990", "2024", "summer", -123.3, 49.1, -122.8, 49.4)
+imgsearcher = ImageSearcher.ImageSearcher("1990", "2024", "summer", -123.3, 49.1, -122.8, 49.4)
+oldImgs, newImgs = imgsearcher.getProcessedImgs()
+comparator = Comparator.Comparator(oldImgs, newImgs)
 
 # get img
 
@@ -26,19 +30,30 @@ imgsearcger = ImageSearcher.ImageSearcher("1990", "2024", "summer", -123.3, 49.1
 
 # comparison = Comparator.Comparator(item, item2)
 
-# ndvi = comparison.getNDVI()
+ndvi = comparator.getNDVI()
 
-# # 4. Display and save the NDVI image
-# plt.close("all")
+# 4. Display and save the NDVI image
+plt.close("all")
 
+oldYear, newYear, season = imgsearcher.getDate()
 
-# plt.figure(figsize=(8, 6))
-# plt.imshow(ndvi, cmap="RdYlGn", vmin=-1, vmax=1)
-# plt.colorbar(label="NDVI")
-# plt.title(f"Vancouver NDVI — {item.datetime.date()} -> {item2.datetime.date()}")
-# plt.axis("off")
-# plt.tight_layout()
-# plt.savefig("vancouver_ndvi.png", dpi=150)
-# plt.show()
+plt.figure(figsize=(8, 6))
+plt.imshow(ndvi, cmap="RdYlGn", vmin=-1, vmax=1)
+plt.colorbar(label="NDVI")
 
-# print("Saved vancouver_ndvi.png")
+limit = np.nanpercentile(np.abs(ndvi), 98)
+
+plt.imshow(
+    ndvi,
+    cmap="RdYlGn",
+    vmin=-limit,
+    vmax=limit
+)
+
+plt.title(f"Vancouver NDVI — {season} - {oldYear} -> {newYear}")
+plt.axis("off")
+plt.tight_layout()
+plt.savefig("vancouver_ndvi.png", dpi=150)
+plt.show()
+
+print("Saved vancouver_ndvi.png")
