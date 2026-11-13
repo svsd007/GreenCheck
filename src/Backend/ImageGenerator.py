@@ -54,8 +54,6 @@ class ImageGenerator:
         )
 
         return self.items[:5]
-        
-
 
     # EFFECTS: returns date
     def getDate(self, img):
