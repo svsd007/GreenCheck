@@ -32,13 +32,12 @@ comparator = Comparator.Comparator(oldImgs, newImgs)
 
 ndvi = comparator.getNDVI()
 
-# 4. Display and save the NDVI image
+# display and save the NDVI image
 plt.close("all")
 
 oldYear, newYear, season = imgsearcher.getDate()
 
 plt.figure(figsize=(8, 6))
-plt.imshow(ndvi, cmap="RdYlGn", vmin=-1, vmax=1)
 plt.colorbar(label="NDVI")
 
 limit = np.nanpercentile(np.abs(ndvi), 98)

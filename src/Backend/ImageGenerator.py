@@ -35,7 +35,7 @@ class ImageGenerator:
             collections = ["landsat-c2-l2"],
             bbox = [minLongitude, minLatitude, maxLongitude, maxLatitude],
             datetime = self.datetime,
-            query = {"eo:cloud_cover": {"lt": 30}},     # filters images with less than 20% cloud coverage
+            query = {"eo:cloud_cover": {"lt": 30}},     # filters images with less than 30% cloud coverage
             max_items = 500,
         )
         
